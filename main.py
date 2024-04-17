@@ -230,7 +230,7 @@ def addcoursecheck():
 
 @app.route('/dropcourse')
 def dropcourse():
-    return render_template('dropcourse.html')
+    return render_template('dropcourse.html',weekday=data.weekday, schedule=data.class_schedule)
 
 @app.route('/dropcourse/check',methods=['POST'])
 def dropcoursecheck():
@@ -239,9 +239,9 @@ def dropcoursecheck():
     courseid=request.form['courseid']
     switch=check_drop_course(username,courseid)
     if(switch==1):
-        return render_template('dropcourse.html',error='這堂課不存在你的課表中')
+        return render_template('dropcourse.html',error='這堂課不存在你的課表中',weekday=data.weekday, schedule=data.class_schedule)
     elif(switch==2):
-        return render_template('dropcourse.html',error='退選失敗 學分小於9學分')
+        return render_template('dropcourse.html',error='退選失敗 學分小於9學分',weekday=data.weekday, schedule=data.class_schedule)
     elif(switch==3):
         return redirect(url_for('dropcoursecheckdoubelcheck'))
     else:
@@ -259,6 +259,6 @@ def dropcoursecheckdoubelcheck():
 def dropcoursesuccess():
     global courseid
     update_drop_course(username,courseid)
-    return render_template('dropcourse.html',success='退選成功')
+    return render_template('dropcourse.html',success='退選成功',weekday=data.weekday, schedule=data.class_schedule)
 
 app.run()
