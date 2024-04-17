@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>退選 course</title>
+</head>
+<body>
+    <h2>退選</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    {% if success %}
+        <p style="color: green;">{{success}}</p>
+    {% endif %}
+    <form action="/dropcourse/check" method="post">
+        <label for="courseid">課程代號:</label><br>
+        <input type="text" id="courseid" name="courseid"><br>
+        <input type="submit" value="Dropcourse">
+    </form>
+    <p><a href="/choose">回選單</a></p>
+    <p><a href="/">logout</a></p>
+</body>
+</html>
