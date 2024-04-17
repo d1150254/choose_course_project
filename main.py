@@ -153,7 +153,8 @@ def account_init(username)->None:
         add_course(username,courseid[0])
     query = "UPDATE student SET check_init = {} WHERE student.id = '{}'".format(1,username)
     update_sql_data(query)
-    
+
+#更新最版本的課表    
 def showcourse(username):
     query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
     user_course=list(i[0] for i in get_sql_data(query))
@@ -173,6 +174,10 @@ def showcourse(username):
             data.class_schedule[data.class_time_table[j-1]][int(i[0][0])]=i[1]
         
     return render_template('mainpage.html',weekday=data.weekday, schedule=data.class_schedule)
+
+def get_avilible_course(username)->dict:
+    data.course_info.clear()
+    return data.course_info
 
 app = Flask(__name__)
 
@@ -205,7 +210,7 @@ def choose():
 
 @app.route('/addcourse')
 def addcourse():
-    return render_template('addcourse.html')
+    return render_template('addcourse.html',course_table=data.course_table)
 
 @app.route('/addcourse/check', methods=['POST'])
 def addcoursecheck():
@@ -213,20 +218,20 @@ def addcoursecheck():
     courseid=request.form['courseid']
     switch=check_add_course(username,courseid)
     if(switch==1):
-        return render_template('addcourse.html',error='不能選別系的課程')
+        return render_template('addcourse.html',error='不能選別系的課程',course_table=data.course_table)
     elif(switch==2):
-        return render_template('addcourse.html',error='課堂人數已滿')
+        return render_template('addcourse.html',error='課堂人數已滿',course_table=data.course_table)
     elif(switch==3):
-        return render_template('addcourse.html',error='有衝堂')
+        return render_template('addcourse.html',error='有衝堂',course_table=data.course_table)
     elif(switch==4):
-        return render_template('addcourse.html',error='課表中有同名課程')
+        return render_template('addcourse.html',error='課表中有同名課程',course_table=data.course_table)
     elif(switch==5):
-        return render_template('addcourse.html',error='超過學分最高限制(30)')
+        return render_template('addcourse.html',error='超過學分最高限制(30)',course_table=data.course_table)
     elif(switch==6):
-        return render_template('addcourse.html',error='錯誤的選課代碼')
+        return render_template('addcourse.html',error='錯誤的選課代碼',course_table=data.course_table)
     
     add_course(username,courseid)
-    return render_template('addcourse.html',success='登記成功')
+    return render_template('addcourse.html',success='登記成功',course_table=data.course_table)
 
 @app.route('/dropcourse')
 def dropcourse():
@@ -258,7 +263,9 @@ def dropcoursecheckdoubelcheck():
 @app.route('/dropcourse/success')
 def dropcoursesuccess():
     global courseid
+    global username
     update_drop_course(username,courseid)
+    showcourse(username)
     return render_template('dropcourse.html',success='退選成功',weekday=data.weekday, schedule=data.class_schedule)
 
 app.run()
