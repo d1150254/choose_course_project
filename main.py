@@ -154,6 +154,25 @@ def account_init(username)->None:
     query = "UPDATE student SET check_init = {} WHERE student.id = '{}'".format(1,username)
     update_sql_data(query)
     
+def showcourse(username):
+    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
+    user_course=list(i[0] for i in get_sql_data(query))
+    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
+    user_course_time_name=[]
+
+    for i in user_course:
+        query = "SELECT coursetime, coursename FROM course where id='{}';".format(i)
+        temp=get_sql_data(query)[0]
+        user_course_time_name.append([str(temp[0]),str(i)+" "+temp[1]])
+    for i in data.class_time_table:
+        for num in range(1,6):
+            data.class_schedule[i][num]="空堂"
+
+    for i in user_course_time_name:
+        for j in range(int(i[0][1]),int(i[0][2])+1):
+            data.class_schedule[data.class_time_table[j-1]][int(i[0][0])]=i[1]
+        
+    return render_template('mainpage.html',weekday=data.weekday, schedule=data.class_schedule)
 
 app = Flask(__name__)
 
@@ -182,14 +201,7 @@ def login():
 @app.route('/choose')
 def choose():
     global username
-    res="""
-            <p>目前登入身分:{}<P>
-            <p><a href="/addcourse">加選</a></p>
-            <p><a href="/dropcourse">退選</a></p>
-            <p><a href="/showcourse">顯示已選課表</a></p>
-            <p><a href="/">logout</a></p>
-        """.format(username)
-    return res
+    return showcourse(username)
 
 @app.route('/addcourse')
 def addcourse():
@@ -248,26 +260,5 @@ def dropcoursesuccess():
     global courseid
     update_drop_course(username,courseid)
     return render_template('dropcourse.html',success='退選成功')
-
-@app.route('/showcourse')
-def showcourse():
-    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
-    user_course=list(i[0] for i in get_sql_data(query))
-    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
-    user_course_time_name=[]
-
-    for i in user_course:
-        query = "SELECT coursetime, coursename FROM course where id='{}';".format(i)
-        temp=get_sql_data(query)[0]
-        user_course_time_name.append([str(temp[0]),str(i)+temp[1]])
-    for i in data.class_time_table:
-        for num in range(1,6):
-            data.class_schedule[i][num]="空堂"
-
-    for i in user_course_time_name:
-        for j in range(int(i[0][1]),int(i[0][2])+1):
-            data.class_schedule[data.class_time_table[j-1]][int(i[0][0])]=i[1]
-        
-    return render_template('showcourse.html',weekday=data.weekday, schedule=data.class_schedule)
 
 app.run()
