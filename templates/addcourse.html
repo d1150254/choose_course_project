@@ -50,7 +50,15 @@
             {% for info, nothing in course_table.items() %}
             <th>{{ info }}</th>
             {% endfor %}
+        <tr>
+        {% for courseid, courses_info in course_info_table.items() %}
+        <tr>
+            <td>{{ courseid }}</td>
+            {% for temp, info in courses_info.items() %}
+                <td>{{ info }}</td>
+            {% endfor %}
         </tr>
+        {% endfor %}
     </table>
     <p><a href="/choose">回選單</a></p>
     <p><a href="/">logout</a></p>

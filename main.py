@@ -175,9 +175,29 @@ def showcourse(username):
         
     return render_template('mainpage.html',weekday=data.weekday, schedule=data.class_schedule)
 
-def get_avilible_course(username)->dict:
+#把儲存開課時間的資料格式轉換成要輸出的格式
+def get_course_time(coursetime:int)->str:
+    coursetime=str(coursetime)
+    week_day=list(data.weekday)
+    return "{} {}~{}堂".format(week_day[int(coursetime[0])-1],coursetime[1],coursetime[2])
+
+#把所有可以選的課存到data.py中的course_info
+def get_avilible_course(username):
     data.course_info.clear()
-    return data.course_info
+    query = "SELECT department FROM student where id='{}';".format(username)
+    user_department=get_sql_data(query)[0][0]
+    query = "SELECT id FROM course where department='{}';".format(user_department)
+    all_courseid=get_sql_data(query)
+    for i in all_courseid:
+        if(check_add_course(username,i[0]) in [0,5]):
+            query = "SELECT coursename,compulsory,credit,maxstudent,nowstudent,courseTime FROM course where id={}".format(i[0])
+            course_info=get_sql_data(query)
+            course_table=list(data.course_table)
+            temp={}
+            for j in range(5):
+                temp[course_table[j]]=course_info[0][j]
+            temp[course_table[5]]=get_course_time(course_info[0][5])
+            data.course_info[i[0]]=temp
 
 app = Flask(__name__)
 
@@ -210,7 +230,9 @@ def choose():
 
 @app.route('/addcourse')
 def addcourse():
-    return render_template('addcourse.html',course_table=data.course_table)
+    global username
+    get_avilible_course(username)
+    return render_template('addcourse.html',course_table=data.course_table,course_info_table=data.course_info)
 
 @app.route('/addcourse/check', methods=['POST'])
 def addcoursecheck():
@@ -218,20 +240,21 @@ def addcoursecheck():
     courseid=request.form['courseid']
     switch=check_add_course(username,courseid)
     if(switch==1):
-        return render_template('addcourse.html',error='不能選別系的課程',course_table=data.course_table)
+        return render_template('addcourse.html',error='不能選別系的課程',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==2):
-        return render_template('addcourse.html',error='課堂人數已滿',course_table=data.course_table)
+        return render_template('addcourse.html',error='課堂人數已滿',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==3):
-        return render_template('addcourse.html',error='有衝堂',course_table=data.course_table)
+        return render_template('addcourse.html',error='有衝堂',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==4):
-        return render_template('addcourse.html',error='課表中有同名課程',course_table=data.course_table)
+        return render_template('addcourse.html',error='課表中有同名課程',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==5):
-        return render_template('addcourse.html',error='超過學分最高限制(30)',course_table=data.course_table)
+        return render_template('addcourse.html',error='超過學分最高限制(30)',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==6):
-        return render_template('addcourse.html',error='錯誤的選課代碼',course_table=data.course_table)
+        return render_template('addcourse.html',error='錯誤的選課代碼',course_table=data.course_table,course_info_table=data.course_info)
     
     add_course(username,courseid)
-    return render_template('addcourse.html',success='登記成功',course_table=data.course_table)
+    get_avilible_course(username)
+    return render_template('addcourse.html',success='登記成功',course_table=data.course_table,course_info_table=data.course_info)
 
 @app.route('/dropcourse')
 def dropcourse():
