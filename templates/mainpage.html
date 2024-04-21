@@ -32,6 +32,12 @@
     </style>
 </head>
 <body>
+    {% if username %}
+        <p>Username:{{username}}</p>
+    {% endif %}
+    {% if credit %}
+        <p>目前學分數：{{ credit }}</p>
+    {% endif %}
     <p><a href="/addcourse">加選</a></p>
     <p><a href="/dropcourse">退選</a></p>
     <p><a href="/">logout</a></p>

@@ -33,6 +33,12 @@
 </head>
 <body>
     <h2>Add course</h2>
+    {% if username %}
+        <p>Username:{{ username }}</p>
+    {% endif %}
+    {% if credit %}
+        <p>目前學分數：{{ credit }}</p>
+    {% endif %}
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
