@@ -32,9 +32,14 @@
     </style>
 </head>
 <body>
+    {% if username %}
+        <p>Username:{{username}}</p>
+    {% endif %}
+    {% if credit %}
+        <p>目前學分數：{{ credit }}</p>
+    {% endif %}
     <p><a href="/addcourse">加選</a></p>
     <p><a href="/dropcourse">退選</a></p>
-    <p><a href="/showcourse">顯示已選課表</a></p>
     <p><a href="/">logout</a></p>
     <table>
         <tr>
@@ -52,7 +57,6 @@
         </tr>
         {% endfor %}
     </table>
-    <p><a href="/choose">回選單</a></p>
     
 </body>
 </html>

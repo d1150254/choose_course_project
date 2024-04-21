@@ -28,6 +28,11 @@ def check_sql_account(username,password)->bool:
     res_passwd_sql=get_sql_data(query)
     return password==res_passwd_sql[0][0]
 
+#取得帳號當前的學分數
+def get_user_credit(username)->int:
+    query = "SELECT credit FROM student where id='{}';".format(username)
+    return get_sql_data(query)[0][0]
+
 #判斷能不能加選 0->可以 1->不同系的課 2->課堂滿了 3->有衝堂 4->有重名課程 5->超過學分限制(30) 6->錯誤的選課代號
 def check_add_course(username, courseid)->int:
     query = "SELECT department FROM course where id='{}';".format(courseid)
@@ -75,6 +80,10 @@ def check_add_course(username, courseid)->int:
 
 #判斷能不能退選 0->可以 1->不存在課表中的課 2->退選完學分小於9學分 3->要退的是必修課
 def check_drop_course(username, courseid)->int:
+    for i in courseid:
+        if i not in ['0','1','2','3','4','5','6','7','8','9']:
+            return 1
+
     query = "SELECT studentid, courseid FROM schedule where studentid='{}' and courseid={};".format(username,courseid)
     if(len(get_sql_data(query))==0):
         return 1
@@ -153,7 +162,51 @@ def account_init(username)->None:
         add_course(username,courseid[0])
     query = "UPDATE student SET check_init = {} WHERE student.id = '{}'".format(1,username)
     update_sql_data(query)
+
+#更新最版本的課表    
+def showcourse(username):
+    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
+    user_course=list(i[0] for i in get_sql_data(query))
+    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
+    user_course_time_name=[]
+
+    for i in user_course:
+        query = "SELECT coursetime, coursename FROM course where id='{}';".format(i)
+        temp=get_sql_data(query)[0]
+        user_course_time_name.append([str(temp[0]),str(i)+" "+temp[1]])
+    for i in data.class_time_table:
+        for num in range(1,6):
+            data.class_schedule[i][num]="空堂"
+
+    for i in user_course_time_name:
+        for j in range(int(i[0][1]),int(i[0][2])+1):
+            data.class_schedule[data.class_time_table[j-1]][int(i[0][0])]=i[1]
     
+    return render_template('mainpage.html',username=username, credit=get_user_credit(username), weekday=data.weekday, schedule=data.class_schedule)
+
+#把儲存開課時間的資料格式轉換成要輸出的格式
+def get_course_time(coursetime:int)->str:
+    coursetime=str(coursetime)
+    week_day=list(data.weekday)
+    return "{} {}~{}堂".format(week_day[int(coursetime[0])-1],coursetime[1],coursetime[2])
+
+#把所有可以選的課存到data.py中的course_info
+def get_avilible_course(username):
+    data.course_info.clear()
+    query = "SELECT department FROM student where id='{}';".format(username)
+    user_department=get_sql_data(query)[0][0]
+    query = "SELECT id FROM course where department='{}';".format(user_department)
+    all_courseid=get_sql_data(query)
+    for i in all_courseid:
+        if(check_add_course(username,i[0]) in [0,5]):
+            query = "SELECT coursename,compulsory,credit,maxstudent,nowstudent,courseTime FROM course where id={}".format(i[0])
+            course_info=get_sql_data(query)
+            course_table=list(data.course_table)
+            temp={}
+            for j in range(5):
+                temp[course_table[j]]=course_info[0][j]
+            temp[course_table[5]]=get_course_time(course_info[0][5])
+            data.course_info[i[0]]=temp
 
 app = Flask(__name__)
 
@@ -182,43 +235,42 @@ def login():
 @app.route('/choose')
 def choose():
     global username
-    res="""
-            <p>目前登入身分:{}<P>
-            <p><a href="/addcourse">加選</a></p>
-            <p><a href="/dropcourse">退選</a></p>
-            <p><a href="/showcourse">顯示已選課表</a></p>
-            <p><a href="/">logout</a></p>
-        """.format(username)
-    return res
+    return showcourse(username)
 
 @app.route('/addcourse')
 def addcourse():
-    return render_template('addcourse.html')
+    global username
+    get_avilible_course(username)
+    user_credit=get_user_credit(username)
+    return render_template('addcourse.html',username=username, credit=user_credit, course_table=data.course_table,course_info_table=data.course_info)
 
 @app.route('/addcourse/check', methods=['POST'])
 def addcoursecheck():
     global username
     courseid=request.form['courseid']
+    user_credit=get_user_credit(username)
     switch=check_add_course(username,courseid)
     if(switch==1):
-        return render_template('addcourse.html',error='不能選別系的課程')
+        return render_template('addcourse.html',username=username, credit=user_credit, error='不能選別系的課程',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==2):
-        return render_template('addcourse.html',error='課堂人數已滿')
+        return render_template('addcourse.html',username=username, credit=user_credit,error='課堂人數已滿',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==3):
-        return render_template('addcourse.html',error='有衝堂')
+        return render_template('addcourse.html',username=username, credit=user_credit,error='有衝堂',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==4):
-        return render_template('addcourse.html',error='課表中有同名課程')
+        return render_template('addcourse.html',username=username, credit=user_credit,error='課表中有同名課程',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==5):
-        return render_template('addcourse.html',error='超過學分最高限制(30)')
+        return render_template('addcourse.html',username=username, credit=user_credit,error='超過學分最高限制(30)',course_table=data.course_table,course_info_table=data.course_info)
     elif(switch==6):
-        return render_template('addcourse.html',error='錯誤的選課代碼')
+        return render_template('addcourse.html',username=username, credit=user_credit,error='錯誤的選課代碼',course_table=data.course_table,course_info_table=data.course_info)
     
     add_course(username,courseid)
-    return render_template('addcourse.html',success='登記成功')
+    get_avilible_course(username)
+    user_credit=get_user_credit(username)
+    return render_template('addcourse.html',username=username, credit=user_credit,success='登記成功',course_table=data.course_table,course_info_table=data.course_info)
 
 @app.route('/dropcourse')
 def dropcourse():
-    return render_template('dropcourse.html')
+    return render_template('dropcourse.html',username=username, credit=get_user_credit(username), weekday=data.weekday, schedule=data.class_schedule)
 
 @app.route('/dropcourse/check',methods=['POST'])
 def dropcoursecheck():
@@ -227,9 +279,9 @@ def dropcoursecheck():
     courseid=request.form['courseid']
     switch=check_drop_course(username,courseid)
     if(switch==1):
-        return render_template('dropcourse.html',error='這堂課不存在你的課表中')
+        return render_template('dropcourse.html',username=username, credit=get_user_credit(username), error='這堂課不存在你的課表中或是輸入了錯誤的課堂代碼',weekday=data.weekday, schedule=data.class_schedule)
     elif(switch==2):
-        return render_template('dropcourse.html',error='退選失敗 學分小於9學分')
+        return render_template('dropcourse.html',username=username, credit=get_user_credit(username), error='退選失敗 學分小於9學分',weekday=data.weekday, schedule=data.class_schedule)
     elif(switch==3):
         return redirect(url_for('dropcoursecheckdoubelcheck'))
     else:
@@ -240,34 +292,15 @@ def dropcoursecheckdoubelcheck():
     return """
             <p>這堂課是必修，你確定要退選嗎<p>
             <p><a href="/dropcourse/success">確定</a></p>
-            <p><a href="/drawcourse">取消</a></p>
+            <p><a href="/dropcourse">取消</a></p>
            """
 
 @app.route('/dropcourse/success')
 def dropcoursesuccess():
     global courseid
+    global username
     update_drop_course(username,courseid)
-    return render_template('dropcourse.html',success='退選成功')
-
-@app.route('/showcourse')
-def showcourse():
-    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
-    user_course=list(i[0] for i in get_sql_data(query))
-    query = "SELECT courseid FROM schedule where studentId='{}';".format(username)
-    user_course_time_name=[]
-
-    for i in user_course:
-        query = "SELECT coursetime, coursename FROM course where id='{}';".format(i)
-        temp=get_sql_data(query)[0]
-        user_course_time_name.append([str(temp[0]),str(i)+temp[1]])
-    for i in data.class_time_table:
-        for num in range(1,6):
-            data.class_schedule[i][num]="空堂"
-
-    for i in user_course_time_name:
-        for j in range(int(i[0][1]),int(i[0][2])+1):
-            data.class_schedule[data.class_time_table[j-1]][int(i[0][0])]=i[1]
-        
-    return render_template('showcourse.html',weekday=data.weekday, schedule=data.class_schedule)
+    showcourse(username)
+    return render_template('dropcourse.html',username=username, credit=get_user_credit(username), success='退選成功',weekday=data.weekday, schedule=data.class_schedule)
 
 app.run()
