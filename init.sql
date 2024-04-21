@@ -47,7 +47,7 @@ VALUES
 ('2030', '電子商務安全', 0, 'computer science', 524, 3, 10, 9),
 ('2014', '資料結構', 1, 'computer science', 268, 3, 10, 5),
 ('1323', '互聯網路', 0, 'computer science', 468, 3, 10, 5),
-('1332', '數位系統設計', 0, 'computer science', 268, 3, 10, 5),
+('1332', '數位系統設計', 0, 'computer science', 568, 3, 10, 5),
 ('1334', 'UNIX應用與實務', 0, 'computer science', 312, 2, 10, 5),
 ('1328', '多媒體系統', 0, 'computer science', 334, 2, 10, 5),
 ('1348', '人工智慧導論', 0, 'computer science', 168, 3, 10, 5),
