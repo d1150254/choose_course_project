@@ -289,7 +289,7 @@ def dropcoursecheckdoubelcheck():
     return """
             <p>這堂課是必修，你確定要退選嗎<p>
             <p><a href="/dropcourse/success">確定</a></p>
-            <p><a href="/drawcourse">取消</a></p>
+            <p><a href="/dropcourse">取消</a></p>
            """
 
 @app.route('/dropcourse/success')
