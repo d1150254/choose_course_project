@@ -81,8 +81,9 @@ def check_add_course(username, courseid)->int:
 #判斷能不能退選 0->可以 1->不存在課表中的課 2->退選完學分小於9學分 3->要退的是必修課
 def check_drop_course(username, courseid)->int:
     for i in courseid:
-        if i not in ['0','1','2','3','4','5','6']:
+        if i not in ['0','1','2','3','4','5','6','7','8','9']:
             return 1
+
     query = "SELECT studentid, courseid FROM schedule where studentid='{}' and courseid={};".format(username,courseid)
     if(len(get_sql_data(query))==0):
         return 1
