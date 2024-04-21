@@ -44,13 +44,13 @@ VALUES
 ('2025', '機率與統計', 1, 'computer science', 424, 3, 10, 4),
 ('2072', 'Web程式設計', 0, 'computer science', 368, 3, 10, 5),
 ('2026', '電子商務安全', 0, 'computer science', 368, 3, 10, 7),
-('2030', '電子商務安全', 0, 'computer science', 524, 3, 10, 9);
-('2014', '資料結構', 1, 'computer science', 268, 3, 10, 5);
-('1323', '互聯網路', 0, 'computer science', 468, 3, 10, 5);
-('1332', '數位系統設計', 0, 'computer science', 268, 3, 10, 5);
-('1334', 'UNIX應用與實務', 0, 'computer science', 312, 2, 10, 5);
-('1328', '多媒體系統', 0, 'computer science', 334, 2, 10, 5);
-('1348', '人工智慧導論', 0, 'computer science', 168, 3, 10, 5);
+('2030', '電子商務安全', 0, 'computer science', 524, 3, 10, 9),
+('2014', '資料結構', 1, 'computer science', 268, 3, 10, 5),
+('1323', '互聯網路', 0, 'computer science', 468, 3, 10, 5),
+('1332', '數位系統設計', 0, 'computer science', 268, 3, 10, 5),
+('1334', 'UNIX應用與實務', 0, 'computer science', 312, 2, 10, 5),
+('1328', '多媒體系統', 0, 'computer science', 334, 2, 10, 5),
+('1348', '人工智慧導論', 0, 'computer science', 168, 3, 10, 5),
 ('1357', '軟體框架設計', 0, 'computer science', 168, 3, 10, 5);
 
 -- computer engineer
@@ -63,6 +63,6 @@ VALUES
 ('2012', '微處理機系統', 1, 'computer engineer', 424, 3, 10, 5),
 ('2020', '系統程式', 0, 'computer engineer', 168, 3, 10, 5),
 ('2018', '電波工程概論', 0, 'computer engineer', 168, 3, 10, 5),
-('2019', '機率論', 0, 'computer engineer', 379, 3, 10, 5);
-('2627', '半導體元件', 0, 'computer engineer', 469, 4, 10, 5);
+('2019', '機率論', 0, 'computer engineer', 379, 3, 10, 5),
+('2627', '半導體元件', 0, 'computer engineer', 469, 4, 10, 5),
 ('2632', '電力電子', 0, 'computer engineer', 514, 4, 10, 5);
