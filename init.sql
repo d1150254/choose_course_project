@@ -30,7 +30,7 @@ create table account(
 
 insert into student(id,grade,department,credit,check_init) values("d1234567",2,"computer science",0,0);
 insert into student(id,grade,department,credit,check_init) values("d1150254",2,"computer engineer",0,0);
-insert into student(id,grade,department,credit,check_init) values("d0000000",2,"computerscience",0,0);
+insert into student(id,grade,department,credit,check_init) values("d0000000",2,"computer science",0,0);
 
 insert into account(studentId,passwd) values("d1234567","1234567");
 insert into account(studentId,passwd) values("d1150254","1150254");
