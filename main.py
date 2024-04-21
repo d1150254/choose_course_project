@@ -80,6 +80,9 @@ def check_add_course(username, courseid)->int:
 
 #判斷能不能退選 0->可以 1->不存在課表中的課 2->退選完學分小於9學分 3->要退的是必修課
 def check_drop_course(username, courseid)->int:
+    for i in courseid:
+        if i not in ['0','1','2','3','4','5','6']:
+            return 1
     query = "SELECT studentid, courseid FROM schedule where studentid='{}' and courseid={};".format(username,courseid)
     if(len(get_sql_data(query))==0):
         return 1
@@ -238,7 +241,6 @@ def addcourse():
     global username
     get_avilible_course(username)
     user_credit=get_user_credit(username)
-    print(username)
     return render_template('addcourse.html',username=username, credit=user_credit, course_table=data.course_table,course_info_table=data.course_info)
 
 @app.route('/addcourse/check', methods=['POST'])
@@ -276,7 +278,7 @@ def dropcoursecheck():
     courseid=request.form['courseid']
     switch=check_drop_course(username,courseid)
     if(switch==1):
-        return render_template('dropcourse.html',username=username, credit=get_user_credit(username), error='這堂課不存在你的課表中',weekday=data.weekday, schedule=data.class_schedule)
+        return render_template('dropcourse.html',username=username, credit=get_user_credit(username), error='這堂課不存在你的課表中或是輸入了錯誤的課堂代碼',weekday=data.weekday, schedule=data.class_schedule)
     elif(switch==2):
         return render_template('dropcourse.html',username=username, credit=get_user_credit(username), error='退選失敗 學分小於9學分',weekday=data.weekday, schedule=data.class_schedule)
     elif(switch==3):
